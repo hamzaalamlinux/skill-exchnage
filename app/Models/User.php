@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'bio', 'profile_pic'];
+    protected $fillable = ['name', 'email', 'password', 'bio', 'profile_pic', 'role'];
     protected $hidden = ['password'];
 
     public function skills() { return $this->hasMany(Skill::class); }
