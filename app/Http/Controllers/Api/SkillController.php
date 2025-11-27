@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class SkillController extends Controller
 {
@@ -50,12 +51,20 @@ class SkillController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+       $validator =  Validator::make($request->all(), [
             'skill_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'nullable|string',
             'image' => 'nullable|image|max:3000'
         ]);
+
+        if($validator->fails()){
+            return response()->json([
+                "status"  => false,
+                "message" => "validation failed",
+                "errors" => $validator->errors()
+            ]);
+        }
 
         $skillData = [
             'user_id' => Auth::id(), // Automatically assign logged-in user

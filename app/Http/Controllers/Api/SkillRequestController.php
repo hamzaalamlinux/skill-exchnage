@@ -5,14 +5,24 @@ use App\Http\Controllers\Controller;
 use App\Models\SkillRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class SkillRequestController extends Controller {
     public function store(Request $request){
-        $request->validate(['requested_skill_id'=>'required|exists:skills,id']);
+       
+        $validator = Validator::make($request->all(),['requested_skill_id'=>'required|exists:skills,id']);
+        if($validator->fails()){
+            return response()->json([
+                "status" => false,
+                "message" => "validation failed",
+                "errors" => $validator->errors()
+            ]);
+        }
+
         $skillRequest = SkillRequest::create([
             'requester_id'=>Auth::id(),
             'requested_skill_id'=>$request->requested_skill_id,
-            'status'=>'pending'
+            'status'=>'requested'
         ]);
         return response()->json($skillRequest);
     }

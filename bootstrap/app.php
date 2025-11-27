@@ -13,10 +13,19 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
          $middleware->alias([
+            'auth'=> \App\Http\Middleware\Authenticate::class,
             'is_admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'auth.api' => \App\Http\Middleware\CheckToken::class,
         ]);
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->renderable(
+            function (\Illuminate\Auth\AuthenticationException $e, $request) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Unauthenticated.',
+                ], 401);
+            }
+        );
     })->create();

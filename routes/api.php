@@ -13,7 +13,7 @@ Route::post('/login',[AuthController::class,'login']);
 Route::get('/skills',[SkillController::class,'reteriveSkills']);
 
 
-Route::middleware('auth:sanctum')->prefix('user')->group(function () {
+Route::middleware(['auth.api','auth:sanctum'])->prefix('user')->group(function () {
 
     // Profile
     Route::put('/profile/update', [UserController::class, 'updateProfile']);
@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
 
     // Skills
     Route::post('/skills', [SkillController::class, 'store']);
-    Route::get('/skills', [SkillController::class, 'retrieveSkills']);
+    Route::get('/skills', [SkillController::class, 'index']);
     Route::post('/skills/upload-image/{id}', [SkillController::class, 'uploadSkillImage']);
 
     // Skill Requests
@@ -29,7 +29,7 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
 });
 
 
-Route::middleware(['auth:sanctum', 'is_admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth.api','auth:sanctum', 'is_admin'])->prefix('admin')->group(function () {
 
     // Users
     Route::get('/users', [AdminController::class, 'getUsers']);

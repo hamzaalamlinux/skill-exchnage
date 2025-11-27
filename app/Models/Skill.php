@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Skill extends Model {
     use HasFactory;
-    protected $fillable = ['user_id', 'skill_name', 'description', 'category'];
+    protected $fillable = ['user_id', 'skill_name', 'description', 'category', 'image'];
     public function user() { return $this->belongsTo(User::class); }
     public function requests() { return $this->hasMany(SkillRequest::class, 'requested_skill_id'); }
 }
