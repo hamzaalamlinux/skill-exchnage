@@ -11,16 +11,21 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register',[AuthController::class,'register']);
 Route::post('/login',[AuthController::class,'login']);
 Route::get('/skills',[SkillController::class,'reteriveSkills']);
+Route::get('/skills/{id}',[SkillController::class,'reteriveSkillsById']);
+
 
 
 Route::middleware(['auth.api','auth:sanctum'])->prefix('user')->group(function () {
 
     // Profile
-    Route::put('/profile/update', [UserController::class, 'updateProfile']);
+    Route::get('/logout', [UserController::class, 'logout']);
+    Route::get('/profile', [UserController::class, 'profile']);
+    Route::post('/profile/update', [UserController::class, 'updateProfile']);
     Route::post('/profile/upload-image', [UserController::class, 'uploadProfileImage']);
 
     // Skills
     Route::post('/skills', [SkillController::class, 'store']);
+    Route::delete('/skills/{id}', [SkillController::class, 'delete']);
     Route::get('/skills', [SkillController::class, 'index']);
     Route::post('/skills/upload-image/{id}', [SkillController::class, 'uploadSkillImage']);
 

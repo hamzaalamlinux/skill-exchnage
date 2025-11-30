@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class SkillRequestController extends Controller {
     public function store(Request $request){
-       
+
         $validator = Validator::make($request->all(),['requested_skill_id'=>'required|exists:skills,id']);
         if($validator->fails()){
             return response()->json([

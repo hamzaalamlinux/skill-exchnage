@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,12 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+           $middleware->appendToGroup('api', HandleCors::class);
          $middleware->alias([
             'auth'=> \App\Http\Middleware\Authenticate::class,
             'is_admin' => \App\Http\Middleware\AdminMiddleware::class,
-            'auth.api' => \App\Http\Middleware\CheckToken::class,
-        ]);
+            'auth.api' => \App\Http\Middleware\CheckToken::class
 
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->renderable(

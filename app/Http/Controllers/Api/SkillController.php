@@ -13,17 +13,35 @@ use Illuminate\Support\Facades\Validator;
 class SkillController extends Controller
 {
 
-     public function reteriveSkills()
+    public function reteriveSkillsById($id){
+        $skill = Skill::where('id', $id)
+        ->firstOrFail();
+        $skill->image_url = $skill->image ? asset('storage/' . $skill->image) : null;
+        return response()->json($skill);
+    }
+
+    public function reteriveSkills()
     {
-        $skills = Skill::with('user')
-            ->where('status', 'approved') // Only approved skills
+        $skills = Skill::whereHas('requests', function ($query) {
+                $query->where('status', 'accepted');
+            })
+            ->with('requests') // optional: eager load the requests
             ->get();
 
-        // Add full image URLs
+
+        // Add image URLs and request status
         $skills->transform(function ($skill) {
             $skill->image_url = $skill->image ? asset('storage/' . $skill->image) : null;
+
+            // If there is a request, get the status (assuming 1 request per user per skill)
+            $skill->requested = $skill->requests->first()?->status ?? null;
+
+            // Remove skillRequests if you only want status
+            unset($skill->skillRequests);
+
             return $skill;
         });
+
 
         return response()->json($skills);
     }
@@ -32,11 +50,24 @@ class SkillController extends Controller
      */
     public function index()
     {
-        $skills = Skill::where('user_id', Auth::id())->get();
+        $skills = Skill::where('user_id', Auth::id())
+            ->with([
+                'requests' => function ($query) {
+                    $query->where('requester_id', Auth::id()); // optional: only for current user
+                }
+            ])
+            ->get();
 
-        // Add image URLs
+        // Add image URLs and request status
         $skills->transform(function ($skill) {
             $skill->image_url = $skill->image ? asset('storage/' . $skill->image) : null;
+
+            // If there is a request, get the status (assuming 1 request per user per skill)
+            $skill->requested = $skill->requests->first()?->status ?? null;
+
+            // Remove skillRequests if you only want status
+            unset($skill->skillRequests);
+
             return $skill;
         });
 
@@ -44,6 +75,7 @@ class SkillController extends Controller
             'message' => 'Your skills',
             'skills' => $skills
         ]);
+
     }
 
     /**
@@ -51,16 +83,16 @@ class SkillController extends Controller
      */
     public function store(Request $request)
     {
-       $validator =  Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'skill_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'nullable|string',
-            'image' => 'nullable|image|max:3000'
+            'image' => 'nullable|image'
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
-                "status"  => false,
+                "status" => false,
                 "message" => "validation failed",
                 "errors" => $validator->errors()
             ]);

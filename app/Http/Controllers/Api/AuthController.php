@@ -10,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller {
     public function register(Request $request) {
-        
+
        $validator =  Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
@@ -31,16 +31,16 @@ class AuthController extends Controller {
             'password' => Hash::make($request->password)
         ]);
         $token = $user->createToken('api-token')->plainTextToken;
-        return response()->json(['user' => $user, 'token' => $token]);
+        return response()->json(['user' => $user, 'token' => $token, "role" => $user->role]);
     }
 
     public function login(Request $request) {
-  
+
        $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required'
         ]);
-          
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -48,7 +48,7 @@ class AuthController extends Controller {
                 'errors' => $validator->errors(),
             ], 422);
         }
-      
+
         $user = User::where('email', $request->email)->first();
         if (!$user || !Hash::check($request->password, $user->password)) {
              return response()->json([
@@ -59,6 +59,6 @@ class AuthController extends Controller {
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
-        return response()->json(['user'=>$user,'token'=>$token]);
+        return response()->json(['user'=>$user,'token'=>$token, "role" => $user->role]);
     }
 }

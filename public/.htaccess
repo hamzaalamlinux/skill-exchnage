@@ -5,6 +5,18 @@
 
     RewriteEngine On
 
+    # --- CORS Start ---
+    <IfModule mod_headers.c>
+        Header add Access-Control-Allow-Origin "*"
+        Header add Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, X-XSRF-Token"
+        Header add Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+        Header add Access-Control-Allow-Credentials "true"
+    </IfModule>
+
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=200,L]
+    # --- CORS End ---
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

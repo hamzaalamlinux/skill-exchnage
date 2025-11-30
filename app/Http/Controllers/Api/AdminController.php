@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Skill;
+use App\Models\SkillRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -22,12 +23,22 @@ class AdminController extends Controller
      */
     public function getSkills()
     {
-        $skills = Skill::with('user')->get();
-
+          $skills = Skill::
+            with('requests')
+            ->get();
+        // Add image URLs and request status
         $skills->transform(function ($skill) {
-            $skill->image_url = $skill->image ? asset('storage/'.$skill->image) : null;
+            $skill->image_url = $skill->image ? asset('storage/' . $skill->image) : null;
+
+            // If there is a request, get the status (assuming 1 request per user per skill)
+            $skill->requested = $skill->requests->first()?->status ?? null;
+
+            // Remove skillRequests if you only want status
+            unset($skill->skillRequests);
+
             return $skill;
         });
+
 
         return response()->json($skills);
     }
@@ -100,8 +111,8 @@ class AdminController extends Controller
      */
     public function approveSkill($id)
     {
-        $skill = Skill::findOrFail($id);
-        $skill->status = 'approved';
+        $skill = SkillRequest::where('requested_skill_id', $id)->first();
+        $skill->status = 'accepted';
         $skill->save();
 
         return response()->json(['message' => 'Skill approved']);
@@ -112,7 +123,7 @@ class AdminController extends Controller
      */
     public function rejectSkill($id)
     {
-        $skill = Skill::findOrFail($id);
+        $skill = SkillRequest::where('requested_skill_id', $id)->first();
         $skill->status = 'rejected';
         $skill->save();
 
