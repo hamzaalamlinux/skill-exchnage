@@ -12,7 +12,8 @@ Route::post('/register',[AuthController::class,'register']);
 Route::post('/login',[AuthController::class,'login']);
 Route::get('/skills',[SkillController::class,'reteriveSkills']);
 Route::get('/skills/{id}',[SkillController::class,'reteriveSkillsById']);
-
+Route::post('/skills/add-feedback', [SkillController::class, 'addFeedback']);
+Route::post('/skills/add-rating', [SkillController::class, 'addRating']);
 
 
 Route::middleware(['auth.api','auth:sanctum'])->prefix('user')->group(function () {

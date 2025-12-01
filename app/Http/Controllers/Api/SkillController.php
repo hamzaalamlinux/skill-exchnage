@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Skill;
+use App\Models\SkillFeedback;
+use App\Models\SkillRating;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +21,42 @@ class SkillController extends Controller
         $skill->image_url = $skill->image ? asset('storage/' . $skill->image) : null;
         return response()->json($skill);
     }
+
+    public function addFeedback(Request $request)
+    {
+        $request->validate([
+            'skill_id' => 'required|exists:skills,id',
+            'feedback' => 'required|string',
+            'visitor_name' => 'nullable|string',
+            'visitor_email' => 'nullable|email',
+        ]);
+
+        $feedback = SkillFeedback::create([
+            'skill_id' => $request->skill_id,
+            'visitor_name' => $request->visitor_name,
+            'visitor_email' => $request->visitor_email,
+            'feedback' => $request->feedback,
+        ]);
+
+        return response()->json(['message' => 'Feedback submitted', 'data' => $feedback]);
+    }
+
+    public function addRating(Request $request)
+    {
+        $request->validate([
+            'skill_id' => 'required|exists:skills,id',
+            'rating' => 'required|integer|min:1|max:5',
+        ]);
+
+        $rating = SkillRating::create([
+            'skill_id' => $request->skill_id,
+            'rating' => $request->rating
+        ]);
+
+        return response()->json(['message' => 'Rating submitted', 'data' => $rating]);
+    }
+
+
 
     public function reteriveSkills()
     {
