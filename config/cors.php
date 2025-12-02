@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'], // Your frontend URL
+    'allowed_origins' => ['https://skill-exchnage-frontend-5e4p.vercel.app'], // Your frontend URL
 
     'allowed_origins_patterns' => [],
 
